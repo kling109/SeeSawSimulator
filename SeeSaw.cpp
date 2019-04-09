@@ -18,7 +18,7 @@ using namespace std;
 double velocity = 0;
 double height = 1.0;
 int t = 0;
-sem_t posUpdate;
+sem_t fredGo, wilmaGo;
 pthread_t threads[2];
 
 /*
@@ -31,16 +31,15 @@ void* fredSee(void* ph)
 {
   while (t < 11)
   {
-    cout << "Fred Curent Height: " << height << endl;
-    cout << "Wilma Current Height: " << 8.0 - height << endl;
     if (height <= 1.0)
     {
       velocity = 1.0;
       ++t;
     }
     sleep(1);
-    sem_wait(&posUpdate);
-    sem_post(&posUpdate);
+    cout << "Fred Curent Height: " << height << endl;
+    sem_post(&fredGo);
+    sem_wait(&wilmaGo);
     height += velocity;
   }
 }
@@ -48,18 +47,19 @@ void* fredSee(void* ph)
 
 /*
 Since Fred does all the calculations and recording, Wilma only must check if her height is low enoough
-to need to adjust velocity.
+to need to adjust velocity.  Additionally, Wilma outputs her height to the command line.
 */
 void* wilmaSaw(void* ph)
 {
   while (t < 11)
   {
+    sem_wait(&fredGo);
     if (height >= 7.0)
     {
       velocity = -1.5;
     }
-    sem_wait(&posUpdate);
-    sem_post(&posUpdate);
+    cout << "Wilma Current Height: " << 8.0 - height << endl;
+    sem_post(&wilmaGo);
   }
 }
 
@@ -69,7 +69,7 @@ only if the threads are properly established.
 */
 int main(int argc, char** argv)
 {
-  if (sem_init(&posUpdate, 0, 1) != 0)
+  if (sem_init(&fredGo, 0, 0) != 0 || sem_init(&wilmaGo, 0, 0) != 0)
   {
     cout << "Initializing the semaphore failed.  The program will now exit." << endl;
     return 1;
