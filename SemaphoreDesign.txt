@@ -1,0 +1,11 @@
+Semaphore Design for Project 2
+
+Trevor Kling
+9 April 2019
+
+For this project, two binary semaphores were used.  One semaphore, fredGo, is used to maintain mutal exclusing to the
+"velocity" variable.  This ensures that, even in the case of a logical error, only one program will attempt to modify
+the variable at any given time.  The second binary semaphore, "wilmaGo," is used to maintain synchronization of the 
+threads.  The function "wilmaSaw" takes an instance of this variable right as it begins execution, preventing the 
+"fredSee" function from progressing to modify the "height" variable until "wilmaSaw" is completed.  This ensures that
+the process will always have a chance to fully update the "velocity" variable before the height is modified.
